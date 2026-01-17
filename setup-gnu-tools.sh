@@ -138,20 +138,10 @@ update_shell_config() {
         return 0
     fi
 
-    # Add GNU tools to PATH - Order matters! These directories are prepended to PATH
-    # so tools in these directories will be found before system BSD tools
     cat >> "$config_file" << 'EOF'
 
 # Use GNU tools instead of BSD tools
-export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
-export PATH="/opt/homebrew/opt/gnu-sed/libexec/gnubin:$PATH"
-export PATH="/opt/homebrew/opt/grep/libexec/gnubin:$PATH"
-export PATH="/opt/homebrew/opt/findutils/libexec/gnubin:$PATH"
-export PATH="/opt/homebrew/opt/gawk/libexec/gnubin:$PATH"
-export PATH="/opt/homebrew/opt/gnu-tar/libexec/gnubin:$PATH"
-export PATH="/opt/homebrew/opt/make/libexec/gnubin:$PATH"
-export PATH="/opt/homebrew/opt/diffutils/libexec/gnubin:$PATH"
-export PATH="/opt/homebrew/bin:$PATH"
+export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:/opt/homebrew/opt/gnu-sed/libexec/gnubin:/opt/homebrew/opt/grep/libexec/gnubin:/opt/homebrew/opt/findutils/libexec/gnubin:/opt/homebrew/opt/gawk/libexec/gnubin:/opt/homebrew/opt/gnu-tar/libexec/gnubin:/opt/homebrew/opt/make/libexec/gnubin:/opt/homebrew/opt/diffutils/libexec/gnubin:/opt/homebrew/bin:$PATH"
 EOF
 
     print_success "$shell_name configured"
@@ -194,15 +184,7 @@ update_shell_configs() {
             cat >> "$HOME/.zshrc" << 'EOF'
 
 # Use GNU tools instead of BSD tools
-export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
-export PATH="/opt/homebrew/opt/gnu-sed/libexec/gnubin:$PATH"
-export PATH="/opt/homebrew/opt/grep/libexec/gnubin:$PATH"
-export PATH="/opt/homebrew/opt/findutils/libexec/gnubin:$PATH"
-export PATH="/opt/homebrew/opt/gawk/libexec/gnubin:$PATH"
-export PATH="/opt/homebrew/opt/gnu-tar/libexec/gnubin:$PATH"
-export PATH="/opt/homebrew/opt/make/libexec/gnubin:$PATH"
-export PATH="/opt/homebrew/opt/diffutils/libexec/gnubin:$PATH"
-export PATH="/opt/homebrew/bin:$PATH"
+export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:/opt/homebrew/opt/gnu-sed/libexec/gnubin:/opt/homebrew/opt/grep/libexec/gnubin:/opt/homebrew/opt/findutils/libexec/gnubin:/opt/homebrew/opt/gawk/libexec/gnubin:/opt/homebrew/opt/gnu-tar/libexec/gnubin:/opt/homebrew/opt/make/libexec/gnubin:/opt/homebrew/opt/diffutils/libexec/gnubin:/opt/homebrew/bin:$PATH"
 EOF
             print_success ".zshrc configured"
         fi
@@ -259,15 +241,7 @@ verify_installation() {
     print_header "Verifying Installation"
 
     # Source the paths for verification
-    export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
-    export PATH="/opt/homebrew/opt/gnu-sed/libexec/gnubin:$PATH"
-    export PATH="/opt/homebrew/opt/grep/libexec/gnubin:$PATH"
-    export PATH="/opt/homebrew/opt/findutils/libexec/gnubin:$PATH"
-    export PATH="/opt/homebrew/opt/gawk/libexec/gnubin:$PATH"
-    export PATH="/opt/homebrew/opt/gnu-tar/libexec/gnubin:$PATH"
-    export PATH="/opt/homebrew/opt/make/libexec/gnubin:$PATH"
-    export PATH="/opt/homebrew/opt/diffutils/libexec/gnubin:$PATH"
-    export PATH="/opt/homebrew/bin:$PATH"
+    export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:/opt/homebrew/opt/gnu-sed/libexec/gnubin:/opt/homebrew/opt/grep/libexec/gnubin:/opt/homebrew/opt/findutils/libexec/gnubin:/opt/homebrew/opt/gawk/libexec/gnubin:/opt/homebrew/opt/gnu-tar/libexec/gnubin:/opt/homebrew/opt/make/libexec/gnubin:/opt/homebrew/opt/diffutils/libexec/gnubin:/opt/homebrew/bin:$PATH"
 
     local all_ok=true
 
