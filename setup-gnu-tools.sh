@@ -206,6 +206,43 @@ check_tool() {
     fi
 }
 
+# Check tool version is greater than or equal to minimum
+check_version() {
+    local cmd=$1
+    local min_version=$2
+    local name=$3
+    local required=${4:-true}
+
+    if ! command -v $cmd &> /dev/null; then
+        if $required; then
+            print_error "$name: not found"
+            return 1
+        else
+            print_warning "$name: not found"
+            return 0
+        fi
+    fi
+
+    local version=$($cmd --version 2>&1 | head -1 | grep -oE '[0-9]+\.[0-9]+' | head -1)
+    if [[ -z "$version" ]]; then
+        print_warning "$name: version check failed"
+        return 0
+    fi
+
+    if awk -v ver="$version" -v min="$min_version" 'BEGIN {exit !(ver >= min)}'; then
+        print_success "$name: $version (>= $min_version)"
+        return 0
+    else
+        if $required; then
+            print_error "$name: $version (need >= $min_version)"
+            return 1
+        else
+            print_warning "$name: $version (need >= $min_version)"
+            return 0
+        fi
+    fi
+}
+
 # Verify installation
 verify_installation() {
     print_header "Verifying Installation"
@@ -214,14 +251,24 @@ verify_installation() {
 
     local all_ok=true
 
+    # Verify GNU tools (must be GNU versions, not BSD)
     check_tool sed "GNU sed" "sed" || all_ok=false
     check_tool grep "GNU grep" "grep" || all_ok=false
+    check_tool find "GNU findutils" "find" || all_ok=false
     check_tool tar "GNU tar" "tar" || all_ok=false
     check_tool make "GNU Make" "make" || all_ok=false
+    check_tool awk "GNU Awk" "awk" || all_ok=false
+    check_tool diff "diffutils" "diff" || all_ok=false
     check_tool ls "GNU coreutils" "ls" || all_ok=false
-    check_tool bash "version 5" "bash" false
+
+    # Verify other tools with version requirements
+    check_version bash 5.0 "bash" false
+    check_version git 2.0 "git" false
     command -v wget &> /dev/null && print_success "wget: verified" || print_warning "wget: not found"
-    command -v git &> /dev/null && print_success "git: verified" || print_warning "git: not found"
+    command -v watch &> /dev/null && print_success "watch: verified" || print_warning "watch: not found"
+    command -v tmux &> /dev/null && print_success "tmux: verified" || print_warning "tmux: not found"
+    command -v less &> /dev/null && print_success "less: verified" || print_warning "less: not found"
+    command -v rg &> /dev/null && print_success "rg: verified" || print_warning "rg: not found"
 
     echo ""
 
