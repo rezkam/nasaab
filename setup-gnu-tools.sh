@@ -170,26 +170,12 @@ EOF
 # Update shell configurations
 update_shell_configs() {
     print_header "Updating Shell Configurations"
-    
+
     update_shell_config "$HOME/.bashrc" ".bashrc (bash)"
     update_bash_profile
     update_shell_config "$HOME/.profile" ".profile (universal)"
-    
-    # Only update .zshrc if it exists (user uses zsh)
-    if [[ -f "$HOME/.zshrc" ]]; then
-        # For zsh, use a slightly different comment
-        if grep -q "opt/coreutils/libexec/gnubin" "$HOME/.zshrc" 2>/dev/null; then
-            print_warning ".zshrc already configured (skipping)"
-        else
-            cat >> "$HOME/.zshrc" << 'EOF'
+    update_shell_config "$HOME/.zshrc" ".zshrc (zsh)"
 
-# Use GNU tools instead of BSD tools
-export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:/opt/homebrew/opt/gnu-sed/libexec/gnubin:/opt/homebrew/opt/grep/libexec/gnubin:/opt/homebrew/opt/findutils/libexec/gnubin:/opt/homebrew/opt/gawk/libexec/gnubin:/opt/homebrew/opt/gnu-tar/libexec/gnubin:/opt/homebrew/opt/make/libexec/gnubin:/opt/homebrew/opt/diffutils/libexec/gnubin:/opt/homebrew/bin:$PATH"
-EOF
-            print_success ".zshrc configured"
-        fi
-    fi
-    
     echo ""
     print_success "All shell configurations updated"
 }
