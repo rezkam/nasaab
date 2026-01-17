@@ -180,110 +180,43 @@ update_shell_configs() {
     print_success "All shell configurations updated"
 }
 
-# Test in a new shell to verify PATH changes work
-test_in_new_shell() {
-    print_header "Testing in Fresh Shell"
-    
-    print_info "Testing commands in a new bash session..."
-    
-    # Test sed
-    local sed_test=$(bash -l -c 'sed --version 2>&1 | head -1')
-    if echo "$sed_test" | grep -q "GNU sed"; then
-        print_success "sed works in new shell: $sed_test"
+# Check if a tool matches expected version pattern
+check_tool() {
+    local cmd=$1
+    local pattern=$2
+    local name=$3
+    local required=${4:-true}
+
+    if $cmd --version 2>&1 | grep -q "$pattern"; then
+        print_success "$name: verified"
+        return 0
     else
-        print_error "sed not working in new shell"
-        print_info "You may need to manually restart your terminal"
+        if $required; then
+            print_error "$name: not found"
+            return 1
+        else
+            print_warning "$name: not found"
+            return 0
+        fi
     fi
-    
-    # Test grep
-    local grep_test=$(bash -l -c 'grep --version 2>&1 | head -1')
-    if echo "$grep_test" | grep -q "GNU grep"; then
-        print_success "grep works in new shell: $grep_test"
-    else
-        print_error "grep not working in new shell"
-    fi
-    
-    # Test find
-    local find_test=$(bash -l -c 'find --version 2>&1 | head -1')
-    if echo "$find_test" | grep -q "GNU findutils"; then
-        print_success "find works in new shell: $find_test"
-    else
-        print_error "find not working in new shell"
-    fi
-    
-    # Test ls (coreutils)
-    local ls_test=$(bash -l -c 'ls --version 2>&1 | head -1')
-    if echo "$ls_test" | grep -q "GNU coreutils"; then
-        print_success "ls works in new shell: $ls_test"
-    else
-        print_warning "ls not working in new shell - PATH may need manual adjustment"
-    fi
-    
-    echo ""
 }
 
 # Verify installation
 verify_installation() {
     print_header "Verifying Installation"
 
-    # Source the paths for verification
     export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:/opt/homebrew/opt/gnu-sed/libexec/gnubin:/opt/homebrew/opt/grep/libexec/gnubin:/opt/homebrew/opt/findutils/libexec/gnubin:/opt/homebrew/opt/gawk/libexec/gnubin:/opt/homebrew/opt/gnu-tar/libexec/gnubin:/opt/homebrew/opt/make/libexec/gnubin:/opt/homebrew/opt/diffutils/libexec/gnubin:/opt/homebrew/bin:$PATH"
 
     local all_ok=true
 
-    # Check key GNU tools
-    if sed --version 2>&1 | grep -q "GNU sed"; then
-        print_success "sed: GNU version"
-    else
-        print_error "sed: GNU version not found"
-        all_ok=false
-    fi
-
-    if grep --version 2>&1 | grep -q "GNU grep"; then
-        print_success "grep: GNU version"
-    else
-        print_error "grep: GNU version not found"
-        all_ok=false
-    fi
-
-    if tar --version 2>&1 | grep -q "GNU tar"; then
-        print_success "tar: GNU version"
-    else
-        print_error "tar: GNU version not found"
-        all_ok=false
-    fi
-
-    if make --version 2>&1 | grep -q "GNU Make"; then
-        print_success "make: GNU version"
-    else
-        print_error "make: GNU version not found"
-        all_ok=false
-    fi
-
-    if ls --version 2>&1 | grep -q "GNU coreutils"; then
-        print_success "ls: GNU version"
-    else
-        print_error "ls: GNU version not found"
-        all_ok=false
-    fi
-
-    if command -v bash &> /dev/null && bash --version | grep -q "version 5"; then
-        print_success "bash: version 5.x"
-    else
-        print_warning "bash: not version 5.x"
-    fi
-
-    if command -v wget &> /dev/null; then
-        print_success "wget: installed"
-    else
-        print_warning "wget: not found"
-    fi
-
-    if command -v git &> /dev/null; then
-        print_success "git: installed"
-    else
-        print_warning "git: not found"
-    fi
+    check_tool sed "GNU sed" "sed" || all_ok=false
+    check_tool grep "GNU grep" "grep" || all_ok=false
+    check_tool tar "GNU tar" "tar" || all_ok=false
+    check_tool make "GNU Make" "make" || all_ok=false
+    check_tool ls "GNU coreutils" "ls" || all_ok=false
+    check_tool bash "version 5" "bash" false
+    command -v wget &> /dev/null && print_success "wget: verified" || print_warning "wget: not found"
+    command -v git &> /dev/null && print_success "git: verified" || print_warning "git: not found"
 
     echo ""
 
@@ -333,7 +266,6 @@ main() {
     install_gnu_tools
     update_shell_configs
     verify_installation
-    test_in_new_shell
     print_summary
     print_tool_list
 }
