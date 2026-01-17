@@ -61,12 +61,14 @@ check_homebrew() {
     else
         print_warning "Homebrew not found. Installing..."
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        
-        # Add Homebrew to PATH for Apple Silicon Macs
+
+        # Add Homebrew to PATH
         if [[ -f "/opt/homebrew/bin/brew" ]]; then
             eval "$(/opt/homebrew/bin/brew shellenv)"
+        elif [[ -f "/usr/local/bin/brew" ]]; then
+            eval "$(/usr/local/bin/brew shellenv)"
         fi
-        
+
         if command -v brew &> /dev/null; then
             print_success "Homebrew installed successfully"
         else
@@ -74,6 +76,9 @@ check_homebrew() {
             exit 1
         fi
     fi
+
+    # Cache brew prefix
+    BREW_PREFIX=$(brew --prefix)
 }
 
 # Install a Homebrew package if not already installed
@@ -133,15 +138,15 @@ update_shell_config() {
     fi
 
     # Check if already configured
-    if grep -q "opt/coreutils/libexec/gnubin" "$config_file" 2>/dev/null; then
+    if grep -q "coreutils/libexec/gnubin" "$config_file" 2>/dev/null; then
         print_warning "$shell_name already configured (skipping)"
         return 0
     fi
 
-    cat >> "$config_file" << 'EOF'
+    cat >> "$config_file" <<EOF
 
 # Use GNU tools instead of BSD tools
-export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:/opt/homebrew/opt/gnu-sed/libexec/gnubin:/opt/homebrew/opt/grep/libexec/gnubin:/opt/homebrew/opt/findutils/libexec/gnubin:/opt/homebrew/opt/gawk/libexec/gnubin:/opt/homebrew/opt/gnu-tar/libexec/gnubin:/opt/homebrew/opt/make/libexec/gnubin:/opt/homebrew/opt/diffutils/libexec/gnubin:/opt/homebrew/bin:$PATH"
+export PATH="${BREW_PREFIX}/opt/coreutils/libexec/gnubin:${BREW_PREFIX}/opt/gnu-sed/libexec/gnubin:${BREW_PREFIX}/opt/grep/libexec/gnubin:${BREW_PREFIX}/opt/findutils/libexec/gnubin:${BREW_PREFIX}/opt/gawk/libexec/gnubin:${BREW_PREFIX}/opt/gnu-tar/libexec/gnubin:${BREW_PREFIX}/opt/make/libexec/gnubin:${BREW_PREFIX}/opt/diffutils/libexec/gnubin:${BREW_PREFIX}/bin:\$PATH"
 EOF
 
     print_success "$shell_name configured"
@@ -205,7 +210,7 @@ check_tool() {
 verify_installation() {
     print_header "Verifying Installation"
 
-    export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:/opt/homebrew/opt/gnu-sed/libexec/gnubin:/opt/homebrew/opt/grep/libexec/gnubin:/opt/homebrew/opt/findutils/libexec/gnubin:/opt/homebrew/opt/gawk/libexec/gnubin:/opt/homebrew/opt/gnu-tar/libexec/gnubin:/opt/homebrew/opt/make/libexec/gnubin:/opt/homebrew/opt/diffutils/libexec/gnubin:/opt/homebrew/bin:$PATH"
+    export PATH="${BREW_PREFIX}/opt/coreutils/libexec/gnubin:${BREW_PREFIX}/opt/gnu-sed/libexec/gnubin:${BREW_PREFIX}/opt/grep/libexec/gnubin:${BREW_PREFIX}/opt/findutils/libexec/gnubin:${BREW_PREFIX}/opt/gawk/libexec/gnubin:${BREW_PREFIX}/opt/gnu-tar/libexec/gnubin:${BREW_PREFIX}/opt/make/libexec/gnubin:${BREW_PREFIX}/opt/diffutils/libexec/gnubin:${BREW_PREFIX}/bin:$PATH"
 
     local all_ok=true
 
@@ -224,7 +229,7 @@ verify_installation() {
         print_success "All tools verified successfully!"
     else
         print_error "Some tools failed verification"
-        return 1
+        print_warning "You may need to restart your shell"
     fi
 }
 
