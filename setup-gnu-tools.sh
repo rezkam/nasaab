@@ -125,6 +125,45 @@ install_gnu_tools() {
     print_success "All GNU tools installed"
 }
 
+# Register Homebrew bash as a valid login shell
+register_homebrew_bash() {
+    print_header "Registering Homebrew Bash"
+
+    local homebrew_bash="${BREW_PREFIX}/bin/bash"
+
+    if [[ ! -x "$homebrew_bash" ]]; then
+        print_warning "Homebrew bash not found at $homebrew_bash"
+        return 0
+    fi
+
+    # Ensure symlink path is in /etc/shells (not Cellar path which breaks on upgrades)
+    if grep -qF "$homebrew_bash" /etc/shells 2>/dev/null; then
+        print_success "Homebrew bash already in /etc/shells"
+    else
+        print_info "Adding $homebrew_bash to /etc/shells (requires sudo)"
+        if sudo sh -c "echo '$homebrew_bash' >> /etc/shells"; then
+            print_success "Homebrew bash registered as valid shell"
+        else
+            print_warning "Failed to add bash to /etc/shells (may need manual setup)"
+            return 0
+        fi
+    fi
+
+    # If user is on old bash or Cellar path, switch to symlink path
+    local current_shell=$(dscl . -read ~/ UserShell | awk '{print $2}')
+    if [[ "$current_shell" == "/bin/bash" || "$current_shell" == *"/Cellar/"* ]]; then
+        print_info "Switching to Homebrew bash..."
+        if chsh -s "$homebrew_bash"; then
+            print_success "Default shell changed to $homebrew_bash"
+        else
+            print_warning "Failed to change shell (run: chsh -s $homebrew_bash)"
+        fi
+    elif [[ "$current_shell" == "$homebrew_bash" ]]; then
+        print_success "Already using Homebrew bash"
+    else
+        print_info "Current shell: $current_shell (keeping as-is)"
+    fi
+}
 
 # Update shell configuration file
 update_shell_config() {
@@ -316,6 +355,7 @@ main() {
     check_macos
     check_homebrew
     install_gnu_tools
+    register_homebrew_bash
     update_shell_configs
     verify_installation
     print_summary
