@@ -17,4 +17,4 @@ GNU tools:
 - sed, grep, find, awk, tar, make, diff, bash 5.x
 
 Other utilities:
-- wget, watch, git, less, tmux, ripgrep, parallel, jq
+- wget, watch, git, less, tmux, ripgrep, parallel, jq, glow

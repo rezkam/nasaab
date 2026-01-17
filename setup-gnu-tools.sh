@@ -122,6 +122,7 @@ install_gnu_tools() {
     install_package "ripgrep" "ripgrep (rg)"
     install_package "parallel" "GNU parallel"
     install_package "jq" "jq"
+    install_package "glow" "glow"
 
     echo ""
     print_success "All GNU tools installed"
@@ -312,6 +313,7 @@ verify_installation() {
     command -v rg &> /dev/null && print_success "rg: verified" || print_warning "rg: not found"
     command -v parallel &> /dev/null && print_success "parallel: verified" || print_warning "parallel: not found"
     command -v jq &> /dev/null && print_success "jq: verified" || print_warning "jq: not found"
+    command -v glow &> /dev/null && print_success "glow: verified" || print_warning "glow: not found"
 
     echo ""
 
@@ -343,7 +345,7 @@ print_tool_list() {
 Installed tools:
   coreutils (ls, cp, mv, rm, cat, date, etc. - 100+ utilities)
   sed, grep, find, awk, tar, make, diff
-  bash 5.x, wget, watch, git, less, tmux, ripgrep, parallel, jq
+  bash 5.x, wget, watch, git, less, tmux, ripgrep, parallel, jq, glow
 
 EOF
 }
